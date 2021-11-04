@@ -1,0 +1,28 @@
+.links {
+  display: flex;
+  justify-content: space-between;
+  width: 400px;
+  align-items: center;
+  margin-top: 10px;
+  border-radius: 50px;
+  background-color: #ca7d3e;
+  padding: 0 20px;
+  color: #fff;
+}
+
+.btn {
+  margin-left: 20px;
+  padding: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 20px;
+  background-color: #000000;
+  color: white;
+
+  transition: all 250ms;
+}
+
+.btn:hover {
+  background-color: #c5522e;
+  transform: scale(1.1);
+}
