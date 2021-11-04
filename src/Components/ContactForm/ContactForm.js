@@ -1,100 +1,104 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import * as actions from "../../redux/actions";
+import { getContacts } from "../../redux/selectors";
 import styles from "./ContactForm.module.css";
-import { v4 as uuid } from "uuid";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { submitNewContact } from "../../redux/contactForm/contactFormActions";
 
-class ContactForm extends Component {
-  static propTypes = {
-    submitNewContact: PropTypes.func.isRequired,
-    contacts: PropTypes.array.isRequired,
-  };
+//TOOLKIT - 2
+export default function ContactForm() {
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
 
-  state = {
-    name: "",
-    number: "",
-  };
+  const [name, setName] = useState("");
+  const [number, setNumber] = useState("");
 
-  saveInputValueToState = (evt) => {
-    this.setState({
-      [evt.target.name]: evt.target.value,
-    });
-  };
+  const newContact = () => {
+    const includeName = contacts.reduce((acc, contact) => [...acc, contact.name], []);
+    const includeNumber = contacts.reduce((acc, contact) => [...acc, contact.number], []);
 
-  handleSubmitForm = (evt) => {
-    evt.preventDefault();
+    if (name === "" || number === "") {
+      alert("Please enter all fields!");
+      return true;
+    }
 
-    if (this.findDuplicate(this.state.name)) {
-      this.props.submitNewContact({ ...this.state, id: uuid() });
-      this.resetForm();
+    if (includeName.includes(name)) {
+      alert(`${name} is already in contacts`);
+      return true;
+    } else if (includeNumber.includes(number)) {
+      alert(`${number} is already in contacts`);
+      return true;
     }
   };
 
-  resetForm = () => {
-    this.setState({ name: "", number: "" });
+  const handleChangeName = (event) => {
+    setName(event.currentTarget.value);
   };
 
-  findDuplicate = (newContactName) => {
-    const isDublicate = this.props.contacts.some(
-      (contact) => contact.name === newContactName
-    );
-
-    if (!newContactName) {
-      alert("The field cannot be empty!");
-      return false;
-    }
-
-    if (isDublicate) {
-      alert("This Name already exist!" + newContactName);
-      return false;
-    }
-    return true;
+  const handleChangeNumber = (event) => {
+    setNumber(event.currentTarget.value);
   };
 
-  render() {
-    return (
-      <>
-        <form className={styles.form} onSubmit={this.handleSubmitForm}>
-          <label className={styles.label}>Name</label>
-          <input
-            onChange={this.saveInputValueToState}
-            type="text"
-            name="name"
-            className={styles.input}
-            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            title="Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
-            required
-            placeholder="Enter Name"
-          ></input>
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    resetName();
+    resetNumber();
 
-          <label className={styles.label}>Number</label>
-          <input
-            onChange={this.saveInputValueToState}
-            type="tel"
-            name="number"
-            className={styles.input}
-            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-            title="Номер телефона должен состоять цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +"
-            required
-            placeholder="Enter your number"
-          />
+    if (newContact()) {
+      return;
+    }
 
-          <button type="submit" className={styles.btn}>
-            Add contact
-          </button>
-        </form>
-      </>
-    );
-  }
+    dispatch(actions.addContact(name, number));
+  };
+
+  const resetName = () => {
+    setName("");
+  };
+  const resetNumber = () => {
+    setNumber("");
+  };
+
+  return (
+    <>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <label className={styles.label}>Name</label>
+        <input
+          onChange={handleChangeName}
+          type="text"
+          name="name"
+          className={styles.input}
+          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+          title="Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
+          required
+          placeholder="Enter Name"
+        ></input>
+
+        <label className={styles.label}>Number</label>
+        <input
+          onChange={handleChangeNumber}
+          type="tel"
+          name="number"
+          className={styles.input}
+          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+          title="Номер телефона должен состоять цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +"
+          required
+          placeholder="Enter your number"
+        />
+
+        <button type="submit" className={styles.btn}>
+          Add contact
+        </button>
+      </form>
+    </>
+  );
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  contacts: state.contacts.items,
-});
+// REDUX - 1
+// const mapStateToProps = state => ({
+//   contacts: state.contacts.contacts,
+// });
 
-const mapDispatchToProps = {
-  submitNewContact,
-};
+// const mapToDispatchToProps = dispatch => ({
+//   onSubmit: (name, number) => dispatch(actions.addContact(name, number)),
+// });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
+// export default connect(mapStateToProps, mapToDispatchToProps)(ContactForm);

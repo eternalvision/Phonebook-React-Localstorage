@@ -1,34 +1,37 @@
-import React from "react";
-import PropTypes from "prop-types";
 import styles from "./Filter.module.css";
-import { connect } from "react-redux";
-import { filterContacts } from "../../redux/contactForm/contactFormActions";
+import { useSelector, useDispatch } from "react-redux";
+import { getFilter } from "../../redux/selectors";
+import * as actions from "../../redux/actions";
 
-const Filter = ({ filter, filterContacts }) => {
+//TOOLKIT - 2
+export default function Filter() {
+  const value = useSelector(getFilter);
+  const dispatch = useDispatch();
+
+  const onChange = (event) => dispatch(actions.changeFilter(event.target.value));
+
   return (
     <input
-      onChange={filterContacts}
+      onChange={onChange}
       type="text"
       name="filter"
       id="filter"
-      value={filter}
+      value={value}
       className={styles.filter}
       placeholder="Enter name to find"
     ></input>
   );
-};
+}
 
-Filter.propTypes = {
-  filter: PropTypes.string,
-  filterContacts: PropTypes.func,
-};
+//REDUX - 1
+// import { connect } from 'react-redux';
 
-const mapStateToProps = (state, ownProps) => ({
-  filter: state.contacts.filter,
-});
+// const mapStateToProps = state => ({
+//   value: state.contacts.filter,
+// });
 
-const mapDispatchToProps = {
-  filterContacts: (evt) => filterContacts(evt.target.value),
-};
+// const mapDispatchToProps = dispatch => ({
+//   onChange: event => dispatch(actions.changeFilter(event.target.value)),
+// });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Filter);
+// export default connect(mapStateToProps, mapDispatchToProps)(Filter);

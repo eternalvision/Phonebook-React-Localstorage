@@ -1,10 +1,16 @@
 import React from "react";
-import PropTypes from "prop-types";
+import { useSelector, useDispatch } from "react-redux";
+import * as actions from "../../redux/actions";
+import { getVisibleContacts } from "../../redux/selectors";
 import styles from "./ContactList.module.css";
-import { connect } from "react-redux";
-import { handleDelete } from "../../redux/contactForm/contactFormActions";
 
-const ContactList = ({ contacts, handleDelete }) => {
+//TOOLKIT - 2
+export default function ContactList() {
+  const contacts = useSelector(getVisibleContacts);
+  const dispatch = useDispatch();
+
+  const onDeleteContact = (id) => dispatch(actions.deleteContact(id));
+
   return (
     <ul>
       {contacts.map((contact) => (
@@ -12,44 +18,32 @@ const ContactList = ({ contacts, handleDelete }) => {
           <p>
             {contact.name} : {contact.number}
           </p>
-          <button
-            type="button"
-            className={styles.btn}
-            onClick={() => handleDelete(contact.id)}
-          >
+          <button type="button" className={styles.btn} onClick={() => onDeleteContact(contact.id)}>
             Delete
           </button>
         </li>
       ))}
     </ul>
   );
-};
+}
 
-ContactList.propTypes = {
-  filteredContacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ),
-  handleDelete: PropTypes.func.isRequired,
-};
+//REDUX - 1
+// import { connect } from 'react-redux';
 
-const getNormolizeContacts = (state) => {
-  const formattedContacts = state.contacts.filter.toLowerCase().trim();
-  const filteredContacts = state.contacts.items.filter((contact) =>
-    contact.name.toLowerCase().includes(formattedContacts)
-  );
-  return filteredContacts;
-};
+// const getVisibleContacts = (allContacts, filter) => {
+//   const normalizedFilter = filter.toLowerCase();
 
-const mapStateToProps = (state, ownProps) => ({
-  contacts: getNormolizeContacts(state),
-});
+//   return allContacts.filter(({ name }) =>
+//     name.toLowerCase().includes(normalizedFilter),
+//   );
+// };
 
-const mapDispatchToProps = {
-  handleDelete,
-};
+// const mapStateToProps = ({ contacts: { contacts, filter } }) => ({
+//   contacts: getVisibleContacts(contacts, filter),
+// });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContactList);
+// const mapDispatchToProps = dispatch => ({
+//   onDeleteContact: id => dispatch(actions.deleteContact(id)),
+// });
+
+// export default connect(mapStateToProps, mapDispatchToProps)(ContactList);
